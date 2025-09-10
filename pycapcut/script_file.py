@@ -12,8 +12,8 @@ from . import exceptions
 from .template_mode import ImportedTrack, EditableTrack, ImportedMediaTrack, ImportedTextTrack, ShrinkMode, ExtendMode, import_track
 from .time_util import Timerange, tim, srt_tstamp
 from .local_materials import VideoMaterial, AudioMaterial
-from .segment import BaseSegment, Speed, ClipSettings
-from .audio_segment import AudioSegment, AudioFade, AudioEffect
+from .segment import BaseSegment, Speed, ClipSettings, AudioFade
+from .audio_segment import AudioSegment, AudioEffect
 from .video_segment import VideoSegment, StickerSegment, SegmentAnimations, VideoEffect, Transition, Filter, BackgroundFilling
 from .effect_segment import EffectSegment, FilterSegment
 from .text_segment import TextSegment, TextStyle, TextBubble
@@ -306,6 +306,9 @@ class ScriptFile:
             # 出入场等动画
             if (segment.animations_instance is not None) and (segment.animations_instance not in self.materials):
                 self.materials.animations.append(segment.animations_instance)
+            # 淡入淡出
+            if (segment.fade is not None) and (segment.fade not in self.materials):
+                self.materials.audio_fades.append(segment.fade)
             # 特效
             for effect in segment.effects:
                 if effect not in self.materials:
