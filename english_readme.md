@@ -33,6 +33,7 @@
 > 🧪 This module has just been migrated. If animations/effects/transitions don’t take effect, please open an issue.
 
 - ☑️ Add local video/image media, and [customize segment timing, duration, or playback speed](#source-trimming-and-global-speed)
+- ☑️ Adjust audio fade in/out durations
 - ☑️ [Global video adjustments](#global-video-adjustments) (rotation, scale, brightness, etc.) and [keyframe generation](#keyframes)
 - ☑️ [In/Out/Group animations](#add-segment-animations) for video segments
 - ☑️ Add [masks](#masks), [segment effects](#add-segment-effects), and [filters](#add-segment-filters)
@@ -521,10 +522,10 @@ Text segments support auto-wrapping via `TextStyle.auto_wrapping` and `TextStyle
 
 ```python
 # Enable auto wrapping, with max line width at 70% of screen width
-seg2 = cc.TextSegment("This is a long text; when it exceeds the set max line width, it wraps automatically.", 
+seg2 = cc.TextSegment("This is a long text; when it exceeds the set max line width, it wraps automatically.",
                           trange("0s", "10s"),
                           font=FontType.文轩体,
-                          style=TextStyle(size=5.0, 
+                          style=TextStyle(size=5.0,
                                           auto_wrapping=True,      # Enable auto wrapping
                                           max_line_width=0.7))     # Max line width at 70% of screen
 ```
