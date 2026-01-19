@@ -514,6 +514,29 @@ seg1 = cc.TextSegment("Subtitle", trange("0s", "10s"),
 
 更具体的参数说明可参见`TextStyle`和`ClipSettings`的构造函数。
 
+#### 使用自定义字体
+除了使用预设字体外，你还可以使用本地的自定义字体文件（支持 `.ttf`、`.otf`、`.ttc` 格式）：
+
+```python
+import pycapcut as cc
+
+# 使用自定义字体文件
+seg2 = cc.TextSegment("自定义字体文本", trange("0s", "10s"),
+                          custom_font="C:/WINDOWS/Fonts/AlimamaShuHeiTi-Bold.otf",  # 字体文件路径
+                          custom_font_name="阿里妈妈数黑体 Bold",  # 可选：字体显示名称
+                          style=TextStyle(size=7.0, color=(1.0, 1.0, 1.0)))
+
+# 也可以使用相对路径或其他位置的字体文件
+seg3 = cc.TextSegment("另一个自定义字体", trange("10s", "5s"),
+                          custom_font="./fonts/myfont.ttf",
+                          style=TextStyle(size=6.0))
+```
+
+> ⚠️ 注意：`font` 和 `custom_font` 参数不能同时使用
+
+> ℹ 使用自定义字体时，字体文件必须存在于指定路径，否则会抛出 `FileNotFoundError` 异常
+
+
 #### 文本自动换行
 文本片段支持自动换行功能，可以通过`TextStyle`的`auto_wrapping`和`max_line_width`参数来控制：
 

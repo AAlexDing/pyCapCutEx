@@ -2,6 +2,7 @@
 
 import json
 import uuid
+import os
 from copy import deepcopy
 
 from typing import Dict, Tuple, Any
@@ -259,6 +260,10 @@ class TextSegment(VisualSegment):
     """文本内容"""
     font: Optional[EffectMeta]
     """字体类型"""
+    custom_font_path: Optional[str]
+    """自定义字体文件路径"""
+    custom_font_name: Optional[str]
+    """自定义字体名称"""
     style: TextStyle
     """字体样式"""
 
@@ -276,6 +281,8 @@ class TextSegment(VisualSegment):
 
     def __init__(self, text: str, timerange: Timerange, *,
                  font: Optional[FontType] = None,
+                 custom_font: Optional[str] = None,
+                 custom_font_name: Optional[str] = None,
                  style: Optional[TextStyle] = None, clip_settings: Optional[ClipSettings] = None,
                  border: Optional[TextBorder] = None, background: Optional[TextBackground] = None,
                  shadow: Optional[TextShadow] = None):
@@ -286,7 +293,9 @@ class TextSegment(VisualSegment):
         Args:
             text (`str`): 文本内容
             timerange (`Timerange`): 片段在轨道上的时间范围
-            font (`Font_type`, optional): 字体类型, 默认为系统字体
+            font (`Font_type`, optional): 字体类型, 默认为系统字体. 与custom_font互斥
+            custom_font (`str`, optional): 自定义字体文件路径, 如 "C:/WINDOWS/Fonts/myfont.ttf". 与font互斥
+            custom_font_name (`str`, optional): 自定义字体显示名称, 如 "我的字体". 仅在使用custom_font时有效
             style (`TextStyle`, optional): 字体样式, 包含大小/颜色/对齐/透明度等.
             clip_settings (`ClipSettings`, optional): 图像调节设置, 默认不做任何变换
             border (`TextBorder`, optional): 文本描边参数, 默认无描边
@@ -295,8 +304,24 @@ class TextSegment(VisualSegment):
         """
         super().__init__(uuid.uuid4().hex, None, timerange, 1.0, 1.0, clip_settings=clip_settings)
 
+        # 字体参数互斥检查
+        if font and custom_font:
+            raise ValueError("font 和 custom_font 参数不能同时使用")
+
+        # 自定义字体路径验证
+        if custom_font:
+            if not os.path.isfile(custom_font):
+                raise FileNotFoundError(f"自定义字体文件不存在: {custom_font}")
+
+            # 检查文件扩展名
+            ext = os.path.splitext(custom_font)[1].lower()
+            if ext not in ['.ttf', '.otf', '.ttc']:
+                raise ValueError(f"不支持的字体文件格式: {ext}，仅支持 .ttf, .otf, .ttc")
+
         self.text = text
         self.font = font.value if font else None
+        self.custom_font_path = custom_font
+        self.custom_font_name = custom_font_name
         self.style = style or TextStyle()
         self.border = border
         self.background = background
@@ -312,6 +337,8 @@ class TextSegment(VisualSegment):
                           border=deepcopy(template.border), background=deepcopy(template.background),
                           shadow=deepcopy(template.shadow))
         new_segment.font = deepcopy(template.font)
+        new_segment.custom_font_path = template.custom_font_path
+        new_segment.custom_font_name = template.custom_font_name
 
         # 处理动画等
         if template.animations_instance:
@@ -413,11 +440,21 @@ class TextSegment(VisualSegment):
             ],
             "text": self.text
         }
-        if self.font:
+
+        # 处理字体：优先使用自定义字体，否则使用预设字体
+        if self.custom_font_path:
+            # 自定义字体：id为空字符串，path为实际路径
+            content_json["styles"][0]["font"] = {
+                "id": "",
+                "path": self.custom_font_path.replace("\\", "/")  # 统一使用正斜杠
+            }
+        elif self.font:
+            # 预设字体：使用resource_id和虚拟路径
             content_json["styles"][0]["font"] = {
                 "id": self.font.resource_id,
                 "path": "C:/%s.ttf" % self.font.name  # 并不会真正在此处放置字体文件
             }
+
         if self.effect:
             content_json["styles"][0]["effectStyle"] = {
                 "id": self.effect.effect_id,
@@ -448,6 +485,20 @@ class TextSegment(VisualSegment):
 
             # 发光 (+64)，属性由extra_material_refs记录
         }
+
+        # 添加字体相关的顶层字段
+        if self.custom_font_path:
+            # 自定义字体的顶层字段
+            ret["font_path"] = self.custom_font_path.replace("\\", "/")
+            ret["font_title"] = self.custom_font_name or ""
+            ret["font_id"] = ""
+            ret["font_resource_id"] = ""
+        elif self.font:
+            # 预设字体的顶层字段
+            ret["font_path"] = "C:/%s.ttf" % self.font.name
+            ret["font_title"] = self.font.name
+            ret["font_id"] = self.font.effect_id
+            ret["font_resource_id"] = self.font.resource_id
 
         if self.background:
             ret.update(self.background.export_json())
