@@ -5,7 +5,7 @@ setup(
     version="0.0.3",
     author="gary318",
     description="A lightweight, flexible, and easy-to-use Python tool for generating and exporting CapCut drafts to build fully automated video editing/remix pipelines!",
-    long_description=open("pypi_readme.md", "r", encoding="utf-8").read(),
+    long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/GuanYixuan/pycapcut",
     packages=find_packages(),
