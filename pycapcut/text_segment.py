@@ -283,6 +283,7 @@ class TextSegment(VisualSegment):
                  font: Optional[FontType] = None,
                  custom_font: Optional[str] = None,
                  custom_font_name: Optional[str] = None,
+                 skip_font_check: bool = False,
                  style: Optional[TextStyle] = None, clip_settings: Optional[ClipSettings] = None,
                  border: Optional[TextBorder] = None, background: Optional[TextBackground] = None,
                  shadow: Optional[TextShadow] = None):
@@ -296,6 +297,7 @@ class TextSegment(VisualSegment):
             font (`Font_type`, optional): 字体类型, 默认为系统字体. 与custom_font互斥
             custom_font (`str`, optional): 自定义字体文件路径, 如 "C:/WINDOWS/Fonts/myfont.ttf". 与font互斥
             custom_font_name (`str`, optional): 自定义字体显示名称, 如 "我的字体". 仅在使用custom_font时有效
+            skip_font_check (`bool`, optional): 跳过字体文件存在性检查, 适用于跨平台场景. 默认为False
             style (`TextStyle`, optional): 字体样式, 包含大小/颜色/对齐/透明度等.
             clip_settings (`ClipSettings`, optional): 图像调节设置, 默认不做任何变换
             border (`TextBorder`, optional): 文本描边参数, 默认无描边
@@ -309,7 +311,7 @@ class TextSegment(VisualSegment):
             raise ValueError("font 和 custom_font 参数不能同时使用")
 
         # 自定义字体路径验证
-        if custom_font:
+        if custom_font and not skip_font_check:
             if not os.path.isfile(custom_font):
                 raise FileNotFoundError(f"自定义字体文件不存在: {custom_font}")
 

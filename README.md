@@ -536,6 +536,21 @@ seg3 = cc.TextSegment("另一个自定义字体", trange("10s", "5s"),
 
 > ℹ 使用自定义字体时，字体文件必须存在于指定路径，否则会抛出 `FileNotFoundError` 异常
 
+**跨平台使用（Linux/macOS 生成草稿，Windows 打开）**：
+
+如果你在 Linux 或 macOS 上生成草稿，但字体文件位于 Windows 系统中，可以使用 `skip_font_check=True` 跳过文件检查：
+
+```python
+# 在 Linux/macOS 上生成草稿，指定 Windows 字体路径
+seg4 = cc.TextSegment("跨平台字体", trange("0s", "10s"),
+                          custom_font="C:/WINDOWS/Fonts/AlimamaShuHeiTi-Bold.otf",
+                          custom_font_name="阿里妈妈数黑体 Bold",
+                          skip_font_check=True,  # 跳过文件存在性检查
+                          style=TextStyle(size=7.0, color=(1.0, 1.0, 1.0)))
+```
+
+这样生成的草稿在 Windows 的 CapCut 中打开时，会自动使用指定路径的字体文件。
+
 
 #### 文本自动换行
 文本片段支持自动换行功能，可以通过`TextStyle`的`auto_wrapping`和`max_line_width`参数来控制：
